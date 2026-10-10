@@ -92,16 +92,19 @@ struct NDimObjectData {
             int i = plane.axis1;
             int j = plane.axis2;
 
-            // For a rotation through ANY plane ij:
-            // rotMatrix[i][i] = cos(angle)
-            // rotMatrix[i][j] = -sin(angle)
-            // rotMatrix[j][i] = sin(angle)
-            // rotMatrix[j][j] = cos(angle)
-
-            outMatrix[i * dimensions + i] = cos(planeAngle);
-            outMatrix[i * dimensions + j] = -sin(planeAngle);
-            outMatrix[j * dimensions + i] = sin(planeAngle);
-            outMatrix[j * dimensions + j] = cos(planeAngle);
+            // A rotation in plane ij is the identity except for
+            //   [i][i] = cos, [i][j] = -sin, [j][i] = sin, [j][j] = cos
+            // Left-multiplying by it only mixes rows i and j, so compose in place.
+            // Writing those four entries directly would only be correct when no
+            // two planes share an axis.
+            float c = cos(planeAngle);
+            float s = sin(planeAngle);
+            for (int col = 0; col < dimensions; col++) {
+                float a = outMatrix[i * dimensions + col];
+                float b = outMatrix[j * dimensions + col];
+                outMatrix[i * dimensions + col] = c * a - s * b;
+                outMatrix[j * dimensions + col] = s * a + c * b;
+            }
         }
     }
 

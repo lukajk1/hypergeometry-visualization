@@ -47,9 +47,7 @@ void initializeObjects() {
                 std::to_string(dimension) + "D " + SHAPE_FAMILY_NAMES[family],
                 makePolytope(family, dimension),
                 ROTATIONS[d],
-                SCALES[family][d],
-                "shaders/" + std::to_string(dimension) + "d.v",
-                "shaders/ws-coloring.f");
+                SCALES[family][d]);
             object->init();
             objects[family][d] = std::move(object);
         }

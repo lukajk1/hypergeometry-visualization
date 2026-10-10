@@ -91,6 +91,9 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
+    // One shader handles every dimension; the "dimensions" uniform selects how many axes to use
+    Shader shader("shaders/ndim.v", "shaders/ws-coloring.f");
+
     initializeObjects();
     updateCurrentObject();
 
@@ -122,7 +125,7 @@ int main()
         setImGuiElements();
 
         // Activate shader
-        currentObject->shader->use();
+        shader.use();
 
         // 3D camera matrices
         glm::mat4 view = camera.GetViewMatrix();
@@ -130,13 +133,14 @@ int main()
 
         // Build rotation matrix using object's method
         // Use a static buffer large enough for any dimension we support (up to 8D = 64 floats)
-        static float rotationMatrix[64];
+        static float rotationMatrix[MAX_DIMENSION * MAX_DIMENSION];
         currentObject->buildRotationMatrix(rotationMatrix, currentFrame * timeRatio);
 
-        currentObject->shader->setFloatArray("rotationMat", rotationMatrix, currentObject->matrixSize());
-        currentObject->shader->setFloat("scale", currentObject->scale);
-        currentObject->shader->setMat4("view", view);
-        currentObject->shader->setMat4("projection", projection);
+        shader.setInt("dimensions", currentObject->dimensions());
+        shader.setFloatArray("rotationMat", rotationMatrix, currentObject->matrixSize());
+        shader.setFloat("scale", currentObject->scale);
+        shader.setMat4("view", view);
+        shader.setMat4("projection", projection);
 
         // draw
         currentObject->draw();

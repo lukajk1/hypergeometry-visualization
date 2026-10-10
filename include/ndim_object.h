@@ -9,7 +9,6 @@
 #include <glad/glad.h>
 #include "polytopes.h"
 #include "rotation.h"
-#include "shader_s.h"
 
 extern float EDGE_THICKNESS;
 extern float VERTEX_SIZE;
@@ -24,24 +23,19 @@ struct NDimObject {
     // OpenGL resources
     unsigned int VAO = 0;
     unsigned int VBO = 0;
-    Shader* shader = nullptr;
-    std::string shaderVertPath;
-    std::string shaderFragPath;
 
-    NDimObject(std::string name, Polytope geometry, std::vector<RotationPlane> rotationPlanes, float scale,
-               std::string shaderVertPath, std::string shaderFragPath)
+    NDimObject(std::string name, Polytope geometry, std::vector<RotationPlane> rotationPlanes, float scale)
         : name(std::move(name)), geometry(std::move(geometry)), rotationPlanes(std::move(rotationPlanes)),
-          scale(scale), shaderVertPath(std::move(shaderVertPath)), shaderFragPath(std::move(shaderFragPath)) {}
+          scale(scale) {}
 
     int dimensions() const { return geometry.dimensions; }
     int matrixSize() const { return dimensions() * dimensions(); }
     int numVec4Groups() const { return (dimensions() + 3) / 4; }
     int stride() const { return dimensions() * sizeof(float); }
 
-    // Initialize buffers and shader. Requires a current OpenGL context.
+    // Upload geometry to the GPU. Requires a current OpenGL context.
     void init() {
         setupBuffers();
-        shader = new Shader(shaderVertPath.c_str(), shaderFragPath.c_str());
     }
 
     // outMatrix must be pre-allocated with at least matrixSize() floats
@@ -100,8 +94,6 @@ struct NDimObject {
     void cleanup() {
         glDeleteVertexArrays(1, &VAO);
         glDeleteBuffers(1, &VBO);
-        delete shader;
-        shader = nullptr;
     }
 };
 

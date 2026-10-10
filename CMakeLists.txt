@@ -40,8 +40,8 @@ target_link_libraries(imgui PUBLIC glfw ${CMAKE_DL_LIBS})
 
 add_executable(ndim-projector
     main.cpp
-    src/hypercube_objects.cpp
-    src/vertex_data.cpp)
+    src/polytopes.cpp
+    src/shape_catalog.cpp)
 target_include_directories(ndim-projector PRIVATE include)
 target_link_libraries(ndim-projector PRIVATE glad glfw glm::glm imgui)
 

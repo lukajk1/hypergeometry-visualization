@@ -1,6 +1,4 @@
 #include <iostream>
-#include <map>
-#include <utility>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -14,16 +12,13 @@
 
 #include "camera.h"
 #include "shader_s.h"
-#include "vertex_data.h"
 #include "ndim_object.h"
-#include "hypercube_objects.h"
+#include "shape_catalog.h"
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void setImGuiElements();
-void initializeObjects();
-void cleanUpObjects();
 void updateCurrentObject();
 
 // settings
@@ -57,11 +52,9 @@ double lastFPSTime = 0.0;
 double currentFPS = 0.0;
 
 // object
-NDimObjectData* currentObject;
+NDimObject* currentObject;
 int shapesIndex = 0;
 int currentDimensionIndex = 2;  // Dropdown index (0-6 maps to dimensions 2-8)
-// Map to store objects by (shapeType, dimension) key
-std::map<std::pair<int, int>, NDimObjectData*> objectMap;
 
 
 int main()
@@ -99,7 +92,7 @@ int main()
     glEnable(GL_DEPTH_TEST);
 
     initializeObjects();
-    currentObject = &hypercube4D;
+    updateCurrentObject();
 
     // render loop
     // -----------
@@ -182,8 +175,7 @@ void setImGuiElements() {
     // family
     ImGui::Text("Family");
     ImGui::Spacing();
-    const char* shapesList[] = { "Hypercube", "Simplex", "Cross-Polytope" };
-    if (ImGui::Combo("##Object", &shapesIndex, shapesList, IM_ARRAYSIZE(shapesList)))
+    if (ImGui::Combo("##Object", &shapesIndex, SHAPE_FAMILY_NAMES, SHAPE_FAMILY_COUNT))
     {
         updateCurrentObject();
     }
@@ -237,91 +229,11 @@ void setImGuiElements() {
 
 }
 
-void initializeObjects() {
-
-    hypercube2D.init();
-    hypercube3D.init();
-    hypercube4D.init();
-    hypercube5D.init();
-    hypercube6D.init();
-    hypercube7D.init();
-    hypercube8D.init();
-
-    simplex2D.init();
-    simplex3D.init();
-    simplex4D.init();
-    simplex5D.init();
-    simplex6D.init();
-    simplex7D.init();
-    simplex8D.init();
-
-    crossPolytope2D.init();
-    crossPolytope3D.init();
-    crossPolytope4D.init();
-    crossPolytope5D.init();
-    crossPolytope6D.init();
-    crossPolytope7D.init();
-    crossPolytope8D.init();
-
-    // Populate object map with (shapeType, dimension) -> object
-    // Shape types: 0 = Hypercube, 1 = Hypersphere, 2 = Simplex, 3 = Cross-Polytope
-    objectMap[{0, 2}] = &hypercube2D;
-    objectMap[{0, 3}] = &hypercube3D;
-    objectMap[{0, 4}] = &hypercube4D;
-    objectMap[{0, 5}] = &hypercube5D;
-    objectMap[{0, 6}] = &hypercube6D;
-    objectMap[{0, 7}] = &hypercube7D;
-    objectMap[{0, 8}] = &hypercube8D;
-
-    objectMap[{1, 2}] = &simplex2D;
-    objectMap[{1, 3}] = &simplex3D;
-    objectMap[{1, 4}] = &simplex4D;
-    objectMap[{1, 5}] = &simplex5D;
-    objectMap[{1, 6}] = &simplex6D;
-    objectMap[{1, 7}] = &simplex7D;
-    objectMap[{1, 8}] = &simplex8D;
-
-    objectMap[{2, 2}] = &crossPolytope2D;
-    objectMap[{2, 3}] = &crossPolytope3D;
-    objectMap[{2, 4}] = &crossPolytope4D;
-    objectMap[{2, 5}] = &crossPolytope5D;
-    objectMap[{2, 6}] = &crossPolytope6D;
-    objectMap[{2, 7}] = &crossPolytope7D;
-    objectMap[{2, 8}] = &crossPolytope8D;
-}
-void cleanUpObjects() {
-
-    hypercube2D.cleanup();
-    hypercube3D.cleanup();
-    hypercube4D.cleanup();
-    hypercube5D.cleanup();
-    hypercube6D.cleanup();
-    hypercube7D.cleanup();
-    hypercube8D.cleanup();
-
-    simplex2D.cleanup();
-    simplex3D.cleanup();
-    simplex4D.cleanup();
-    simplex5D.cleanup();
-    simplex6D.cleanup();
-    simplex7D.cleanup();
-    simplex8D.cleanup();
-
-    crossPolytope2D.cleanup();
-    crossPolytope3D.cleanup();
-    crossPolytope4D.cleanup();
-    crossPolytope5D.cleanup();
-    crossPolytope6D.cleanup();
-    crossPolytope7D.cleanup();
-    crossPolytope8D.cleanup();
-}
 // Helper function to update current object based on shape and dimension selection
 void updateCurrentObject() {
-    int actualDimension = currentDimensionIndex + 2;  // Convert dropdown index to actual dimension (0->2, 1->3, etc.)
-    auto key = std::make_pair(shapesIndex, actualDimension);
-    auto it = objectMap.find(key);
-    if (it != objectMap.end()) {
-        currentObject = it->second;
+    int actualDimension = currentDimensionIndex + MIN_DIMENSION;  // Convert dropdown index to actual dimension (0->2, 1->3, etc.)
+    if (NDimObject* object = getObject(shapesIndex, actualDimension)) {
+        currentObject = object;
     }
     else {
         std::cout << "No object found for shape " << shapesIndex << ", dimension " << actualDimension << std::endl;

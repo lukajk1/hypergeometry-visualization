@@ -23,7 +23,7 @@ const std::vector<RotationPlane> ROTATIONS[DIMENSION_COUNT] = {
 // Each projection step shrinks the shape, so higher dimensions need a larger scale to fill the view
 const float SCALES[SHAPE_FAMILY_COUNT][DIMENSION_COUNT] = {
     { 1.0f, 0.65f, 1.5f, 4.0f, 10.0f, 25.0f, 55.0f },     // Hypercube
-    { 1.0f, 1.2f, 3.5f, 8.0f, 30.0f, 120.0f, 300.0f },    // Simplex
+    { 1.0f, 1.2f, 3.35f, 7.9f, 28.5f, 128.0f, 285.0f },   // Simplex
     { 1.0f, 1.2f, 3.5f, 8.0f, 30.0f, 120.0f, 300.0f },    // Cross-Polytope
 };
 

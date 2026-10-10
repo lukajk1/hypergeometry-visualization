@@ -87,6 +87,7 @@ int main(int argc, char** argv)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_SAMPLES, 4);  // 4x MSAA to smooth the wireframe edges
 
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Higher Dimensions", NULL, NULL);
     if (window == NULL)
@@ -113,6 +114,7 @@ int main(int argc, char** argv)
 #pragma endregion
 
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_MULTISAMPLE);
 
     // One shader handles every dimension; the "dimensions" uniform selects how many axes to use
     Shader shader("shaders/ndim.v", "shaders/ws-coloring.f");

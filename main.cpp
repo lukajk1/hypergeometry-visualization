@@ -8,17 +8,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "stb_image.h"
-
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
 #include "camera.h"
-#include "mesh.h"
-#include "model.h"
 #include "shader_s.h"
-#include "filesystem.h"
 #include "vertex_data.h"
 #include "ndim_object.h"
 #include "hypercube_objects.h"
@@ -102,7 +97,6 @@ int main()
 #pragma endregion
 
     glEnable(GL_DEPTH_TEST);
-    stbi_set_flip_vertically_on_load(true);
 
     initializeObjects();
     currentObject = &hypercube4D;

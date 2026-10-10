@@ -5,7 +5,6 @@
 
 dev/
 archive/
-*.c
 
 # User-specific files
 *.rsuser
@@ -430,3 +429,8 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+# CMake build output
+build/
+
+# ImGui window layout written at runtime
+imgui.ini

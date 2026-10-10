@@ -38,12 +38,14 @@ add_library(imgui STATIC
 target_include_directories(imgui PUBLIC imgui)
 target_link_libraries(imgui PUBLIC glfw ${CMAKE_DL_LIBS})
 
+# Geometry and rotation math, kept free of OpenGL so it can be tested headless
+add_library(ndim-geometry STATIC src/polytopes.cpp)
+target_include_directories(ndim-geometry PUBLIC include)
+
 add_executable(ndim-projector
     main.cpp
-    src/polytopes.cpp
     src/shape_catalog.cpp)
-target_include_directories(ndim-projector PRIVATE include)
-target_link_libraries(ndim-projector PRIVATE glad glfw glm::glm imgui)
+target_link_libraries(ndim-projector PRIVATE ndim-geometry glad glfw glm::glm imgui)
 
 # Shaders are loaded by relative path, so keep a copy next to the executable
 # and run from the source tree when debugging in Visual Studio.
@@ -53,3 +55,8 @@ add_custom_command(TARGET ndim-projector POST_BUILD
 set_target_properties(ndim-projector PROPERTIES
     VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT ndim-projector)
+
+enable_testing()
+add_executable(geometry-tests tests/geometry_tests.cpp)
+target_link_libraries(geometry-tests PRIVATE ndim-geometry)
+add_test(NAME geometry COMMAND geometry-tests)
